@@ -8,7 +8,9 @@ import threading
 import random
 import os
 import sys
+import keyboard
 
+paused = False
 outputs = mido.get_output_names()
 print(outputs)
 port=mido.open_output('Microsoft GS Wavetable Synth 0')
@@ -38,6 +40,7 @@ def readMidi():
                 g = random.randint(0,255)
                 b = random.randint(0,255)
                 rgb = [r,g,b]
+                #rgb = [0,0,255]
                 
                 if msg.velocity > 0:
                     note_list.append([x, 0, rgb, msg])
@@ -63,22 +66,29 @@ while done == False:
         if event.type == pygame.QUIT:
             done=True
 
-    for i in range(len(note_list)):
-        if note_list[i][1] < (SIZE[1]):
-            pygame.draw.rect(screen, note_list[i][2], pygame.Rect(note_list[i][0], note_list[i][1]-150, RECT_SIZE, RECT_SIZE))
-            note_list[i][1] += 1
-        elif note_list[i][1] == (SIZE[1]):
-            note_list[i][1] += 1
-            port.send(note_list[i][3])
-    pygame.display.flip()
+    if(not paused):
+        for i in range(len(note_list)):
+            if note_list[i][1] < (SIZE[1]):
+                pygame.draw.rect(screen, note_list[i][2], pygame.Rect(note_list[i][0], note_list[i][1]-150, RECT_SIZE, RECT_SIZE))
+                note_list[i][1] += 1
+            elif note_list[i][1] == (SIZE[1]):
+                note_list[i][1] += 1
+                port.send(note_list[i][3])
+                paused = True
+        pygame.display.flip()
 
-    for i in range(len(note_list_off)):
-        if note_list_off[i][1] < (SIZE[1]):
-            pygame.draw.rect(screen, BLACK, pygame.Rect(note_list_off[i][0], note_list_off[i][1]-150, RECT_SIZE, RECT_SIZE))
-            note_list_off[i][1] += 1
-        elif note_list_off[i][1] == (SIZE[1]):
-            note_list_off[i][1] += 1
-            port.send(note_list_off[i][2])
+        for i in range(len(note_list_off)):
+            if note_list_off[i][1] < (SIZE[1]):
+                pygame.draw.rect(screen, BLACK, pygame.Rect(note_list_off[i][0], note_list_off[i][1]-150, RECT_SIZE, RECT_SIZE))
+                note_list_off[i][1] += 1
+            elif note_list_off[i][1] == (SIZE[1]):
+                note_list_off[i][1] += 1
+                port.send(note_list_off[i][2])
+    while(paused):
+        if(keyboard.is_pressed("k")):
+            paused = False
+
+    
     clock.tick(200)
 pygame.quit()
 

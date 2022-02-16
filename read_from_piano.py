@@ -46,4 +46,4 @@ while done == False:
 
     clock.tick(200)
     
-pygame.quit ()
+pygame.quit()
