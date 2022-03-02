@@ -5,6 +5,7 @@ import threading
 import mido
 import rtmidi
 import keyboard
+import random
 
 class led_matrix:
     def __init__(self, rows = 10, columns = 10, led_size = 10, padding_coef = 1.1):
@@ -96,3 +97,49 @@ class led_matrix:
                 time.sleep(delay)    
                 # clock.tick(10)
         pygame.quit()    
+
+    def readFromPiano(self, inport, rows, delay):
+        note_list = []
+        note_list_off = []
+        clock = pygame.time.Clock()
+        done = False
+        for x in range(self.columns):
+                for y in range(self.rows):
+                    pygame.draw.circle(self.surface, self.pixels[x][y], self.getPixelPosition(x, y), self.led_size)
+        pygame.display.flip()
+        while done == False:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done=True
+
+            for msg in inport.iter_pending():
+                print(msg)
+                n = msg.note
+                x = n - 36
+                if msg.velocity > 0 and msg.type == 'note_on':
+                    r = random.randint(0, 255)
+                    g = random.randint(0, 255)
+                    b = random.randint(0, 255)
+                    rgb = (r, g, b)
+                    note_list.append([x, rows, rgb])
+                else:       
+                    note_list_off.append([x, rows])    
+                # print(msg)
+            # led_matrix.playMidi(note_list, note_list_off, inport, tutorial = False, delay = 0.01) 
+                  
+            for i in range(len(note_list)):
+                # print(note_list[i])
+                pygame.draw.circle(self.surface, note_list[i][2], self.getPixelPosition(note_list[i][0], note_list[i][1]), self.led_size)       
+                if note_list[i][1] >= 0:
+                    note_list[i][1] -= 1
+
+            pygame.display.flip()
+
+            for i in range(len(note_list_off)):
+                print(note_list_off[i])
+                pygame.draw.circle(self.surface, self.offColor, self.getPixelPosition(note_list_off[i][0], note_list_off[i][1]), self.led_size)
+                if note_list_off[i][1] >= 0:
+                    note_list_off[i][1] -= 1  
+            time.sleep(delay) 
+            # clock.tick(200)
+        pygame.quit()
