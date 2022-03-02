@@ -49,7 +49,7 @@ def readMidi(mid, note_list, note_list_off):
                 n = msg.note
                 numOfPixels = int(math.ceil(msg.time / timeForOnePixel))
                 yCoordinate -= numOfPixels
-                x = n-30
+                x = n-36
                 r = random.randint(0, 255)
                 g = random.randint(0, 255)
                 b = random.randint(0, 255)
@@ -75,9 +75,13 @@ def playMidiFile(led_matrix, file, delay, tutorial):
     # outputs = mido.get_output_names()
     # print(outputs)
     port = mido.open_output("Microsoft GS Wavetable Synth 0")
+    if tutorial:
+        inport=mido.open_input()
+    else:
+        inport=""
     readMidi(mid, note_list, note_list_off)
 
-    led_matrix.playMidi(note_list, note_list_off, port, tutorial = tutorial, delay = delay) 
+    led_matrix.playMidi(note_list, note_list_off, port, inport, tutorial = tutorial, delay = delay) 
         
 def imageAnimation(animationImages, path):
     for img in animationImages:
@@ -105,5 +109,5 @@ if __name__ == "__main__":
 
     # playAnimation(led_matrix = led_matrix, folder = "splash-30x50") # matrix dimensions must be the same as image's (rows X columns) 
 
-    playMidiFile(led_matrix = led_matrix, file = "pirates.mid", tutorial = False, delay = 0.02)
+    playMidiFile(led_matrix = led_matrix, file = "twinkle_right_hand.mid", tutorial = True, delay = 0.02)
                 
